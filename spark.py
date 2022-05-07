@@ -38,9 +38,9 @@ def structuring_data(msg):
         patient_data_dict["timestamp"] = None
 
     try:
-        patient_data_dict["battery_life"] = int(rdd.collect()[2])
+        patient_data_dict["battery"] = int(rdd.collect()[2])
     except Exception as error:
-        patient_data_dict["battery_life"] = None
+        patient_data_dict["battery"] = None
 
     try:
         patient_data_dict["heart_beat"] = int(rdd.collect()[3])
@@ -81,7 +81,7 @@ sc = SparkContext.getOrCreate()
 sc.setLogLevel("WARN")
 
 # Consume records from a Kafka cluster :
-consumer = KafkaConsumer('RawPatientData', auto_offset_reset='earliest', bootstrap_servers=[
+consumer = KafkaConsumer('RawPatientData', auto_offset_reset='latest', bootstrap_servers=[
                          'localhost:9092'], consumer_timeout_ms=10000)
 
 # Kafka client that publishes records to the Kafka cluster :

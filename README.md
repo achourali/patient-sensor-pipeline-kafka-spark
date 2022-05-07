@@ -16,3 +16,6 @@
 
 ### Process -> ( save in mongo and stream processed data ) with spark
     python3 spark.py
+
+### Start dashboard 
+    bokeh serve --show realtime_dashboard.py
