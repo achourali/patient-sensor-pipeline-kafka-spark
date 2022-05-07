@@ -5,7 +5,6 @@ import datetime
 from kafka import KafkaProducer, KafkaClient
 from websocket import create_connection
 
-
 def get_patient_data(patient_id):
     
     try:

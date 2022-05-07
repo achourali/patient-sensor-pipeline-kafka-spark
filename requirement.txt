@@ -1,0 +1,12 @@
+bson
+pyspark
+kafka
+pymongo
+flask
+bokeh
+pandas
+pytz
+colorcet
+websocket
+json
+dateutil 

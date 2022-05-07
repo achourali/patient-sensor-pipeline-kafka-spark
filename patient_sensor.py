@@ -6,11 +6,11 @@ from flask import Flask, Response
 
 app = Flask(__name__)
 
-# data
-
+# This Route Generates random patient data :
 
 @app.route('/patient_data/<patient_id>')
 def get_sensor_data(patient_id):
+    
     timestamp = "{}".format((datetime.now()).now().isoformat())
     systolic_blood_pressure = str(int(random.uniform(60, 200)))
     diastolic_blood_pressure = str(int(random.uniform(40, 150)))
