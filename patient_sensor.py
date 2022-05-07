@@ -11,12 +11,11 @@ app = Flask(__name__)
 
 @app.route('/patient_data/<patient_id>')
 def get_sensor_data(patient_id):
-    print(patient_id)
     timestamp = "{}".format((datetime.now()).now().isoformat())
-    systolic_blood_pressure = str(round(random.uniform(60, 200), 0))
-    diastolic_blood_pressure = str(round(random.uniform(40, 150), 0))
-    battery_life = str(round(random.uniform(100, 0), 0))
-    heart_beat = str(round(random.uniform(30, 160), 0))
+    systolic_blood_pressure = str(int(random.uniform(60, 200)))
+    diastolic_blood_pressure = str(int(random.uniform(40, 150)))
+    battery_life = str(int(random.uniform(100, 0)))
+    heart_beat = str(int(random.uniform(30, 160)))
 
     response = "{patient_id} {timestamp} {battery_life} {heart_beat} {systolic_blood_pressure} {diastolic_blood_pressure}\
                 ".format(
