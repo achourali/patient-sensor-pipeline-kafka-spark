@@ -21,10 +21,11 @@ patients_number=3
 
 
 while True:
+    time.sleep(1)
     for id in range(patients_number):
         msg =  get_patient_data(id)
         producer.send("RawPatientData", msg.encode('utf-8'))
-        time.sleep(1)
+        
 
 
     
