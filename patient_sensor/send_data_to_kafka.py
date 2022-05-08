@@ -15,7 +15,7 @@ def get_patient_data(patient_id):
         return "Error in Connection"
 
 
-producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
+producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
 patients_number=3
 
 

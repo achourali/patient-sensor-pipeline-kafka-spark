@@ -1,0 +1,50 @@
+version: "3.3"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - 9092:9092
+      - 29092:29092
+    depends_on:
+      - zookeeper
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_LOG4J_LOGGERS="kafka.controller=INFO,kafka.request.logger=WARN"
+      - KAFKA_LOG4J_ROOT_LOGLEVEL=ERROR
+
+  patient_sensor:
+    hostname: patient_sensor
+    container_name: patient_sensor
+    image: python:3.7-alpine
+    ports:
+      - "3030:3030"
+    depends_on:
+      - kafka
+    volumes:
+      - ./patient_sensor:/home
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      pip3 install -r /home/requirements.txt  
+      python3 /home/patient_sensor.py & python3 /home/send_data_to_kafka.py
+      "
+    restart: on-failure
