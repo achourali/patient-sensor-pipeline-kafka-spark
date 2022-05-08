@@ -5,7 +5,7 @@ from pyspark import SparkContext
 from kafka import KafkaConsumer, KafkaProducer
 from pymongo import MongoClient
 
-mongoClient = MongoClient('localhost', 27017)
+mongoClient = MongoClient('mongodb', 27017)
 db = mongoClient['patientsData']
 collection = db['RealTimeData']
 
@@ -82,9 +82,9 @@ sc.setLogLevel("WARN")
 
 # Consume records from a Kafka cluster :
 consumer = KafkaConsumer('RawPatientData', auto_offset_reset='latest', bootstrap_servers=[
-                         'localhost:9092'], consumer_timeout_ms=10000)
+                         'kafka:9092'], consumer_timeout_ms=10000)
 
 # Kafka client that publishes records to the Kafka cluster :
-producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
+producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
 
 consume_stream_data()

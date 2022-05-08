@@ -1,0 +1,4 @@
+bson
+pymongo
+pyspark
+kafka-python
