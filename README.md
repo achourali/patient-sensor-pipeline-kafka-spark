@@ -3,4 +3,4 @@
 
 # To run it on Docker 
 `docker-compose up --build`
-### then visit  <localhost:5006/realtime_dashboard>  to view the dashboard (for the first time wait until all dependencies are downloaded)
+### then visit  http://localhost:5006/realtime_dashboard  to view the dashboard (for the first time wait until all dependencies are downloaded)
