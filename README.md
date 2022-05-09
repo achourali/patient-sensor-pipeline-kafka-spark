@@ -1,21 +1,6 @@
-### Create kafka topics
-    bin/kafka-topics.sh --create --topic RawPatientData --bootstrap-server localhost:9092
-    bin/kafka-topics.sh --create --topic JsonPatientData --bootstrap-server localhost:9092
-### Consume kafka events
-    bin/kafka-console-consumer.sh --topic RawPatientData --from-beginning --bootstrap-server localhost:9092
-    bin/kafka-console-consumer.sh --topic JsonPatientData --from-beginning --bootstrap-server localhost:9092
+# To run it on your local machine ( without Docker ) visit this commit 
+ https://github.com/achourali/patient-sensor-pipeline-kafka-spark/tree/a53b618c46557b89a4169c8e9aefd1754e731438
 
-### Start patient sensor api
-    python3 patient_sensor.py
-
-### Start kafka server
-    bin/kafka-server-start.sh config/server.properties
-
-### Send (random) raw data to kafka
-    python3 send_data_to_kafka.py
-
-### Process -> ( save in mongo and stream processed data ) with spark
-    python3 spark.py
-
-### Start dashboard 
-    bokeh serve --show realtime_dashboard.py
+# To run it on Docker 
+`docker-compose up --build`
+### then visit  <localhost:5006/realtime_dashboard>  to view the dashboard (for the first time wait until all dependencies are downloaded)
