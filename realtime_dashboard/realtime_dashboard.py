@@ -99,7 +99,7 @@ plots = []
 tz = pytz.timezone('Africa/Tunis')
 source = ColumnDataSource({"x": [], "y": []})
 consumer = KafkaConsumer('JsonPatientData', auto_offset_reset='latest', bootstrap_servers=[
-                         'localhost:9092'], consumer_timeout_ms=20000)
+                         'kafka:9092'], consumer_timeout_ms=20000)
 doc = curdoc()
 
 doc.add_periodic_callback(update, UPDATE_INTERVAL)
