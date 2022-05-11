@@ -78,7 +78,7 @@ def consume_stream_data():
                 producer.send("JsonPatientData", json.dumps(
                     dict_data, default=json_util.default).encode('utf-8'))
 
-            print(dict_data)
+            # print(dict_data)
 
 
 def batch_processing():
@@ -87,16 +87,19 @@ def batch_processing():
     # df.show()
     # df.printSchema()
     interval = 3.0
-
-    aggregate = ["heart_beat", "diastolic_blood_pressure",
-                 "systolic_blood_pressure"]
+    metrics = ["heart_beat", "diastolic_blood_pressure",
+               "systolic_blood_pressure"]
+    aggregate = metrics
     funs = [F.avg, F.max, F.min, F.count]
 
     exprs = [f(F.col(c)) for f in funs for c in aggregate]
     now = time.time()
 
-    df.filter((now - df.timestamp) <
-              interval).groupBy("patient_id").agg(*exprs).show()
+    stats = df.filter((now - df.timestamp) <
+                      interval).groupBy("patient_id").agg(*exprs)
+
+    producer.send("JsonPatientsStats",
+                  stats.toPandas().to_json().encode('utf-8'))
 
     timer = threading.Timer(interval, batch_processing)
     timer.start()

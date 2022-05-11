@@ -15,8 +15,8 @@ import colorcet as cc
 
 
 @count()
-def update(i):
-    for event in consumer:
+def updatePatientData(i):
+    for event in patientDataConsumer:
         break
 
     event = ast.literal_eval(event.value.decode("utf-8"))
@@ -33,6 +33,14 @@ def update(i):
         {"x": [x], "y": [event["systolic_blood_pressure"]]}, ROLLOVER)
     plot["sources"]["diastolic_blood_pressure_src"].stream(
         {"x": [x], "y": [event["diastolic_blood_pressure"]]}, ROLLOVER)
+
+
+@count()
+def updatePatientsStats(i):
+    for event in patientsStatsConsumer:
+        break
+    
+    event = ast.literal_eval(event.value.decode("utf-8"))
 
 
 def get_patient_plot(patient_id):
@@ -95,8 +103,12 @@ ROLLOVER = 10
 plots = []
 tz = pytz.timezone('Africa/Tunis')
 source = ColumnDataSource({"x": [], "y": []})
-consumer = KafkaConsumer('JsonPatientData', auto_offset_reset='latest', bootstrap_servers=[
-                         'kafka:9092'], consumer_timeout_ms=20000)
+patientDataConsumer = KafkaConsumer('JsonPatientData', auto_offset_reset='latest', bootstrap_servers=[
+    'kafka:9092'], consumer_timeout_ms=20000)
+
+patientsStatsConsumer = KafkaConsumer('JsonPatientsStats', auto_offset_reset='latest', bootstrap_servers=[
+    'kafka:9092'], consumer_timeout_ms=20000)
 doc = curdoc()
 
-doc.add_periodic_callback(update, UPDATE_INTERVAL)
+doc.add_periodic_callback(updatePatientData, UPDATE_INTERVAL)
+doc.add_periodic_callback(updatePatientsStats, 3000)
