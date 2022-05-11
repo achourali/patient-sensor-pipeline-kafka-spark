@@ -12,13 +12,12 @@ import time
 import pytz
 from datetime import datetime
 import colorcet as cc
+from functools import partial
+from threading import Thread
 
 
-@count()
-def updatePatientData(i):
-    for event in patientDataConsumer:
-        break
-
+def updatePatientData(event):
+    
     event = ast.literal_eval(event.value.decode("utf-8"))
 
     plot = get_patient_plot(event["patient_id"])
@@ -33,15 +32,13 @@ def updatePatientData(i):
         {"x": [x], "y": [event["systolic_blood_pressure"]]}, ROLLOVER)
     plot["sources"]["diastolic_blood_pressure_src"].stream(
         {"x": [x], "y": [event["diastolic_blood_pressure"]]}, ROLLOVER)
-
-
-@count()
-def updatePatientsStats(i):
-    for event in patientsStatsConsumer:
-        break
     
-    event = ast.literal_eval(event.value.decode("utf-8"))
+        
 
+def consumePatientData():
+    for event in patientDataConsumer:
+         doc.add_next_tick_callback(partial(updatePatientData,event=event))
+        
 
 def get_patient_plot(patient_id):
     patient_plot = None
@@ -98,7 +95,6 @@ def get_patient_plot(patient_id):
     return patient_plot
 
 
-UPDATE_INTERVAL = 500
 ROLLOVER = 10
 plots = []
 tz = pytz.timezone('Africa/Tunis')
@@ -110,5 +106,6 @@ patientsStatsConsumer = KafkaConsumer('JsonPatientsStats', auto_offset_reset='la
     'kafka:9092'], consumer_timeout_ms=20000)
 doc = curdoc()
 
-doc.add_periodic_callback(updatePatientData, UPDATE_INTERVAL)
-doc.add_periodic_callback(updatePatientsStats, 3000)
+
+thread = Thread(target = consumePatientData)
+thread.start()
