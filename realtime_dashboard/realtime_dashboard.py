@@ -22,10 +22,7 @@ def update(i):
     event = ast.literal_eval(event.value.decode("utf-8"))
 
     plot = get_patient_plot(event["patient_id"])
-
-    x = datetime.strptime(event["timestamp"]["$date"],
-                          '%Y-%m-%dT%H:%M:%S.%fZ').timestamp()
-    x = datetime.fromtimestamp(x, tz).isoformat()
+    x = datetime.fromtimestamp(event["timestamp"], tz).isoformat()
     x = pd.to_datetime(x)
     plot["div"].text = "<h2>Patient {id}</h2> <br> battery :{battery}%".format(
         id=event["patient_id"], battery=event["battery"])

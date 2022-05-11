@@ -77,8 +77,9 @@ services:
     entrypoint: [ '/bin/sh', '-c' ]
     command: |
       "
+      # tail -f /dev/null 
       pip3 install -r /home/requirements.txt  
-      /opt/bitnami/spark/bin/spark-submit /home/spark.py
+      /opt/bitnami/spark/bin/spark-submit  --packages org.mongodb.spark:mongo-spark-connector_2.12:3.0.1 /home/spark.py
       "
     restart: on-failure
 

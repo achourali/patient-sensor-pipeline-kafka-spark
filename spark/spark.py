@@ -1,13 +1,18 @@
 import json
 from bson import json_util
 from dateutil import parser
-from pyspark import SparkContext
 from kafka import KafkaConsumer, KafkaProducer
 from pymongo import MongoClient
+from pyspark.sql import SparkSession, SQLContext, functions as F
+from pyspark import SparkConf, SparkContext
+import threading
+import time
+
 
 mongoClient = MongoClient('mongodb', 27017)
 db = mongoClient['patientsData']
 collection = db['RealTimeData']
+
 
 def data_exist(patient_id, timestamp):
     return collection.count_documents({
@@ -17,6 +22,7 @@ def data_exist(patient_id, timestamp):
         ]
 
     }) > 0
+
 
 def structuring_data(msg):
     patient_data_dict = {}
@@ -33,7 +39,7 @@ def structuring_data(msg):
         patient_data_dict["patient_id"] = None
 
     try:
-        patient_data_dict["timestamp"] = parser.isoparse(rdd.collect()[1])
+        patient_data_dict["timestamp"] = float(rdd.collect()[1])
     except Exception as error:
         patient_data_dict["timestamp"] = None
 
@@ -74,6 +80,28 @@ def consume_stream_data():
 
             print(dict_data)
 
+
+def batch_processing():
+    print("*************************************************************************")
+
+    # df.show()
+    # df.printSchema()
+    interval = 3.0
+
+    aggregate = ["heart_beat", "diastolic_blood_pressure",
+                 "systolic_blood_pressure"]
+    funs = [F.avg, F.max, F.min, F.count]
+
+    exprs = [f(F.col(c)) for f in funs for c in aggregate]
+    now = time.time()
+
+    df.filter((now - df.timestamp) <
+              interval).groupBy("patient_id").agg(*exprs).show()
+
+    timer = threading.Timer(interval, batch_processing)
+    timer.start()
+
+
 # Get or instantiate a SparkContext and register it as a singleton object :
 sc = SparkContext.getOrCreate()
 
@@ -87,4 +115,11 @@ consumer = KafkaConsumer('RawPatientData', auto_offset_reset='latest', bootstrap
 # Kafka client that publishes records to the Kafka cluster :
 producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
 
+
+spark = SparkSession.builder.appName('abc').getOrCreate()
+
+df = spark.read.format("com.mongodb.spark.sql.DefaultSource").option(
+    "uri", "mongodb://mongodb:27017/patientsData.RealTimeData").load()
+
+batch_processing()
 consume_stream_data()
