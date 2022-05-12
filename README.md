@@ -1,3 +1,8 @@
+# Pipline Architecture 
+<br>
+<img src ="assets\architecture.jpg">
+<br>
+
 # To run it on your local machine ( without Docker ) visit this commit 
  https://github.com/achourali/patient-sensor-pipeline-kafka-spark/tree/a53b618c46557b89a4169c8e9aefd1754e731438
 
