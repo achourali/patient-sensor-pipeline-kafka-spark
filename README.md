@@ -9,3 +9,6 @@
 # To run it on Docker 
 `docker-compose up --build`
 ### then visit  http://localhost:5006/realtime_dashboard  to view the dashboard (for the first time wait until all dependencies are downloaded)
+
+# Realtime dashboard demo
+![Alt Text](assets/demo.gif)
