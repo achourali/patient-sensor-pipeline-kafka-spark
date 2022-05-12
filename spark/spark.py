@@ -5,7 +5,7 @@ from kafka import KafkaConsumer, KafkaProducer
 from pymongo import MongoClient
 from pyspark.sql import SparkSession, SQLContext, functions as F
 from pyspark import SparkConf, SparkContext
-import threading
+from threading import Thread
 import time
 
 
@@ -83,26 +83,31 @@ def consume_stream_data():
 
 def batch_processing():
     print("*************************************************************************")
+    while True:
+        interval = 3.0
+        time.sleep(interval)
+        try:
 
-    # df.show()
-    # df.printSchema()
-    interval = 3.0
-    metrics = ["heart_beat", "diastolic_blood_pressure",
-               "systolic_blood_pressure"]
-    aggregate = metrics
-    funs = [F.avg, F.max, F.min, F.count]
+            df = spark.read.format("com.mongodb.spark.sql.DefaultSource").option(
+                "uri", "mongodb://mongodb:27017/patientsData.RealTimeData").load()
 
-    exprs = [f(F.col(c)) for f in funs for c in aggregate]
-    now = time.time()
+            df.show()
+            # df.printSchema()
+            metrics = ["heart_beat", "diastolic_blood_pressure",
+                       "systolic_blood_pressure"]
+            aggregate = metrics
+            funs = [F.avg, F.max, F.min, F.count]
 
-    stats = df.filter((now - df.timestamp) <
-                      interval).groupBy("patient_id").agg(*exprs)
+            exprs = [f(F.col(c)) for f in funs for c in aggregate]
+            now = time.time()
 
-    producer.send("JsonPatientsStats",
-                  stats.toPandas().to_json().encode('utf-8'))
+            stats = df.filter((now - df.timestamp) <
+                              interval).groupBy("patient_id").agg(*exprs)
 
-    timer = threading.Timer(interval, batch_processing)
-    timer.start()
+            producer.send("JsonPatientsStats",
+                          stats.toPandas().to_json().encode('utf-8'))
+        except:
+            print("error")
 
 
 # Get or instantiate a SparkContext and register it as a singleton object :
@@ -121,8 +126,10 @@ producer = KafkaProducer(bootstrap_servers=['kafka:9092'])
 
 spark = SparkSession.builder.appName('abc').getOrCreate()
 
-df = spark.read.format("com.mongodb.spark.sql.DefaultSource").option(
-    "uri", "mongodb://mongodb:27017/patientsData.RealTimeData").load()
 
-batch_processing()
-consume_stream_data()
+thread = Thread(target=consume_stream_data)
+thread.start()
+
+
+thread = Thread(target=batch_processing)
+thread.start()
